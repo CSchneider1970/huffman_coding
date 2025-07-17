@@ -1,3 +1,13 @@
+"""
+Huffman Tree Construction Module
+
+This module defines the core data structures and functions used for building Huffman trees
+based on byte frequency histograms. It includes classes for tree nodes (leaves and branches),
+and functions to construct a tree and generate lookup tables for encoding.
+
+Intended for internal use in compression-related utilities.
+"""
+
 class HuffmanNode:
     """
     Base class for nodes in a Huffman tree.
@@ -122,8 +132,7 @@ def build_huffman_tree(byte_histogram: dict[int, int]) -> HuffmanBranch | None:
     return build_huffman_tree_from_leaves(leaves)
 
 
-# Traversing a tree iteratively
-def create_encoding_table_from_tree(huffman_tree: HuffmanBranch) -> dict[int, str]:
+def build_lookup_table_for_encoding(huffman_tree: HuffmanBranch) -> dict[int, str]:
     """
     Generates a lookup table for Huffman encoding from a Huffman tree.
 
@@ -138,34 +147,61 @@ def create_encoding_table_from_tree(huffman_tree: HuffmanBranch) -> dict[int, st
         dict[int, str]: A dictionary mapping each byte value to its corresponding Huffman code.
     """
 
-    encoding_table = {}  # Mapping table as a dictionary (Key = Byte to encode, Value = Bit-Sequence for encoding)
-    position_as_node_list = [huffman_tree]  # The root of the tree
+    # Edge case: Huffman tree is None
+    if huffman_tree == None:
+        return {}
+    
+    # Dictionary to store Huffman codes: {byte_value: bit_string}
+    lookup_table: dict[int, str] = {}
 
-    while position_as_node_list:
-        pass
+    # Stack to traverse the tree: [(node, bit_string_so_far)]
+    # Starts with the root node and an empty bit string
+    traversal_stack: list[tuple[HuffmanNode, str]] = [(huffman_tree, "")]
 
-    return encoding_table
+    # Iterative tree traversal (depth-first)
+    while traversal_stack:
+        node, bit_string = traversal_stack.pop()
 
-
-# A recursive approach
-def build_huffman_encoding_table_from_tree(huffman_tree):
-    def traverse(node, prefix, table):
         if isinstance(node, HuffmanLeaf):
-            table[node.byte_value] = prefix
-        elif isinstance(node, HuffmanBranch):
-            traverse(node.left, prefix + "0", table)
-            traverse(node.right, prefix + "1", table)
+            # Edge case: Dummy leaf is for tree structure only - skip encoding
+            if node.byte_value is not None:
+                # Store the accumulated bit string as the Huffman code
+                lookup_table[node.byte_value] = bit_string
+        else:
+            if node.left is not None:
+                # Traverse left child, add '0' to bit string
+                traversal_stack.append((node.left, bit_string + "0"))
+            if node.right is not None:
+                # Traverse right child, add '1' to bit string
+                traversal_stack.append((node.right, bit_string + "1"))
 
-    huffman_encoding_table = {}
-    traverse(huffman_tree, "", huffman_encoding_table)
-    return huffman_encoding_table
+    return lookup_table
+
+
+def build_encoding_lookup_from_histogram(byte_histogram: dict[int, int]) -> dict[int, str]:
+    """
+    High-level function to generate a Huffman encoding lookup table from a byte histogram.
+
+    This function abstracts away tree construction and encoding traversal,
+    providing a one-step interface for generating Huffman codes.
+
+    Args:
+        byte_histogram (dict[int, int]): Mapping of byte values to frequency counts.
+
+    Returns:
+        dict[int, str]: Lookup table that maps each byte to its Huffman code.
+                        If the histogram is empty, an empty dictionary is returned.
+    """
+    
+    # Construct the Huffman tree from frequency histogram
+    tree = build_huffman_tree(byte_histogram)
+
+    # Generate and return the encoding table from the tree
+    return build_lookup_table_for_encoding(tree) if tree else {}
 
 
 if __name__ == "__main__":
-    import random
-    testdaten = {byte: random.randint(1, 100) for byte in range(65, 91)}
-    testdaten[100] = 2000
-    # testdaten = {65: 100}
-    print(testdaten)
-
-    print(build_huffman_encoding_table_from_tree(build_huffman_tree(testdaten)))
+    # Simple sanity test with mock histogram
+    histogram = {ord('A'): 5, ord('B'): 2, ord('C'): 1}
+    lookup = build_encoding_lookup_from_histogram(histogram)
+    print("Test lookup table:", lookup)
