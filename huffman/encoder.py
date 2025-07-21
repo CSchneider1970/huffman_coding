@@ -63,6 +63,66 @@ def build_file_header_from_byte_histogram(byte_histogram: dict[int, int]) -> byt
     return bytes(file_header)
 
 
+def build_bit_stream_from_byte_block(byte_block: bytes, encoding_table: dict[int, str]) -> str:
+    """
+    Constructs a bit stream by mapping each byte in the input block to a corresponding 
+    bit sequence using the provided encoding table.
+
+    Args:
+        byte_block (bytes): A sequence of bytes to be converted into a bit stream.
+        encoding_table (dict[int, str]): A mapping from byte values (0-255) to their 
+            respective bit string representations.
+
+    Returns:
+        str: The resulting concatenated bit stream as a string.
+
+    Raises:
+        ValueError: If a byte in `byte_block` is not found in `encoding_table`.
+    """
+
+    # A list is more performant and saves memory than merging character strings.
+    bit_stream = []
+
+    # Create a list entry for each byte with "1"s and "0"s.
+    for byte in byte_block:
+        encoded_bits = encoding_table.get(byte)
+        if encoded_bits is None:
+            raise ValueError(f"Byte {byte} not included in encoding table.")
+        bit_stream.append(encoded_bits)
+
+    # Finally, create a string from the list of strings and return it.
+    return ''.join(bit_stream)
+
+
+def build_write_buffer_from_bit_stream(bit_stream: str) -> tuple[str, bytearray]:
+    """
+    Converts a bit stream into a write buffer of bytes.
+
+    Processes the bit stream in 8-bit chunks, converting each to an integer and 
+    appending it to the buffer. Any leftover bits (less than 8) are returned 
+    as the remaining bitstream.
+
+    Args:
+        bitstream (str): A string representing the bit stream (e.g. "10101000...").
+
+    Returns:
+        tuple: A tuple containing:
+            - Remaining bits that couldn't form a full byte (str).
+            - The resulting buffer with converted bytes (bytearray).
+    """
+    
+    write_buffer = bytearray()
+
+    # Process full 8-bit chunks
+    while len(bit_stream) >= 8:
+        byte_bits = bit_stream[:8]
+        write_buffer.append(int(byte_bits, 2))
+        bit_stream = bit_stream[8:]
+
+    # Leftover bits and bytes for writing
+    return bit_stream, write_buffer
+
+
 if __name__ == "__main__":
     # Simple sanity test with mock histogram
     simple_histogram = {65: 10, 66: 20, 67: 50}
