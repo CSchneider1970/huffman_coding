@@ -115,11 +115,14 @@ def build_write_buffer_from_bit_stream(bit_stream: str) -> tuple[str, bytearray]
 
     # Process full 8-bit chunks
     while len(bit_stream) >= 8:
+        # Take the first 8 bits
         byte_bits = bit_stream[:8]
+        # Convert the bit-string into 1 Byte
         write_buffer.append(int(byte_bits, 2))
+        # Remove these 8 bits
         bit_stream = bit_stream[8:]
 
-    # Leftover bits and bytes for writing
+    # Leftover bits / Bytes for writing
     return bit_stream, write_buffer
 
 

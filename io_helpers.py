@@ -10,7 +10,7 @@ def build_byte_histogram_from_file(filename: str, blocksize: int = 1024) -> dict
         blocksize (int, optional): Number of bytes to read per block. Defaults to 1024.
 
     Returns:
-        dict[int, int]: A dictionary mapping each byte (0–255) to its frequency in the file.
+        dict[int, int]: A dictionary mapping each byte (0-255) to its frequency in the file.
     """
 
     # Initialize byte frequency dictionary
