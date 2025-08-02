@@ -1,4 +1,4 @@
-def build_byte_histogram_from_file(filename: str, blocksize: int = 1024) -> dict[int, int]:
+def get_byte_histogram_from_file(filename: str, blocksize: int = 1024) -> dict[int, int]:
     """
     Reads a file in binary mode in small blocks and counts the occurrence of each byte.
 
@@ -12,15 +12,28 @@ def build_byte_histogram_from_file(filename: str, blocksize: int = 1024) -> dict
     Returns:
         dict[int, int]: A dictionary mapping each byte (0-255) to its frequency in the file.
     """
-
     # Initialize byte frequency dictionary
     byte_histogram: dict[int, int] = {}
 
     # Read file in binary mode block by block
     with open(filename, "rb") as file:
-        while byte_block := file.read(blocksize):
-            for byte in byte_block:
+        while data_block := file.read(blocksize):
+            for byte in data_block:
                 # Count occurrences of each byte (start at 0 if not seen before)
                 byte_histogram[byte] = byte_histogram.get(byte, 0) + 1
 
     return byte_histogram
+
+
+def write_header_to_file(filename: str, header: bytes) -> None:
+    """ Test function, will be removed later. """
+    with open(filename, "wb") as file:
+        file.write(header)
+
+
+if __name__ == "__main__":
+    from huffman.encoder import get_file_header_from_histogram
+    filename = "./output.compressed"
+    histogram = {ord("A"): 100, ord("B"): 50, ord("C"): 25, ord("D"): 25}
+    header = get_file_header_from_histogram(histogram)
+    write_header_to_file(filename, header)
