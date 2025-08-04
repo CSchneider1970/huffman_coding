@@ -1,8 +1,18 @@
 """
 Huffman Encoder Module
 
-This module defines the data structures and functions used to
-encode a file using the Huffman codes associated with the file.
+This module provides utilities for compressing binary files using Huffman coding.
+
+Core functionality includes:
+- Constructing a binary file header for decoding purposes
+- Generating bit sequences from raw data using a Huffman lookup table
+- Packing bit sequences into byte-aligned buffers for file output
+
+Functions:
+- get_bytes_from_histogram_entry: Serializes histogram entries into binary form
+- get_file_header_from_histogram: Generates the header with metadata for decoding
+- get_bit_seq_from_data_block: Converts byte blocks into Huffman-coded bit strings
+- get_write_buffer_from_bit_seq: Transforms bit strings into byte-oriented buffers
 """
 
 def get_bytes_from_histogram_entry(byte_value: int, count: int) -> bytes:

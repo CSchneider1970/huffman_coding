@@ -1,9 +1,29 @@
 """
 Huffman Tree Construction Module
 
-This module defines the core data structures and functions used for building Huffman trees
-based on byte frequency histograms. It includes classes for tree nodes (leaves and branches),
-and functions to construct a tree and generate lookup tables for encoding.
+This module provides the data structures and utilities needed to construct Huffman trees
+from byte frequency histograms. It defines the building blocks of the tree—including leaf
+and branch nodes—and exposes functions for generating the tree and creating lookup tables
+used for Huffman encoding.
+
+Core functionality includes:
+- Representing tree nodes for both leaves and branches
+- Constructing a Huffman tree from sorted leaf nodes
+- Generating encoding lookup tables via tree traversal (iterative and recursive)
+- Providing high-level interfaces for tree and LUT construction from histograms
+
+Classes:
+- HuffmanNode: Base class representing a node with byte frequency
+- HuffmanLeaf: Leaf node representing a specific byte value
+- HuffmanBranch: Internal node combining two child nodes
+
+Functions:
+- get_leaves_from_histogram: Converts frequency histogram into sorted leaf nodes
+- get_tree_from_leaves: Builds Huffman tree from leaf nodes using greedy merging
+- get_lut_from_tree: Generates a byte-to-bit mapping by traversing the tree (iterative)
+- get_lut_from_tree_recursive: Generates the same mapping using a recursive strategy
+- build_tree: High-level wrapper that constructs a Huffman tree from a histogram
+- build_lut_from_histogram: Convenience method to create an encoding table in one step
 """
 
 class HuffmanNode:
